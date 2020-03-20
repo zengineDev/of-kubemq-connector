@@ -1,0 +1,28 @@
+name: Build a docker image from release
+
+on:
+  release:
+    types: [published]
+    branches:
+      - master
+
+jobs:
+  build:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v1
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      - name: Publish Docker Image to GPR
+        uses: machine-learning-apps/gpr-docker-publish@master
+        id: docker
+        with:
+          IMAGE_NAME: 'connector'
+          TAG: ${{ steps.get_version.outputs.VERSION }}
+          DOCKERFILE_PATH: './Dockerfile'
+          BUILD_CONTEXT: './'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
