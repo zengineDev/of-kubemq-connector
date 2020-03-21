@@ -28,17 +28,17 @@ type broker struct {
 	ctx    context.Context
 }
 
-const KubeMqPort = 50000
+const MqPort = 50000
 
 func NewBroker(config BrokerConfig) (Broker, error) {
 	broker := &broker{}
-	brokerURL := fmt.Sprintf("kubemq://%s:%s", config.Host, KubeMqPort)
+	brokerURL := fmt.Sprintf("kubemq://%s:%s", config.Host, string(MqPort))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	for {
 		client, err := kubemq.NewClient(ctx,
-			kubemq.WithAddress(config.Host, KubeMqPort),
+			kubemq.WithAddress(config.Host, MqPort),
 			kubemq.WithClientId(config.Client),
 			kubemq.WithTransportType(kubemq.TransportTypeGRPC))
 
