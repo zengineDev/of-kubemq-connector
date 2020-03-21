@@ -6,6 +6,8 @@ ENV CGO_ENABLED=0
 WORKDIR /go/src/github.com/ZengineChris/of-kubemq-connector
 
 COPY vendor     vendor
+COPY config     config
+COPY kubemq     kubemq
 COPY main.go    .
 
 # Run a gofmt and exclude all vendored code.

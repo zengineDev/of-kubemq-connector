@@ -1,0 +1,22 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+
+configuration:
+  templates:
+    - name: golang-http
+      source: https://github.com/openfaas-incubator/golang-http-template
+
+functions:
+  emitter:
+    lang: golang-middleware
+    handler: ./emitter
+    image: kubemq/emitter:latest
+
+  receiver:
+    lang: golang-http
+    handler: ./receiver
+    annotations:
+      topic: "kubemq-test"
+    image: kubemq/receiver:latest

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubemq-connector
+    component: kubemq-connector
+  name: kubemq-connector
+  namespace: openfaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubemq-connector
+      component: kubemq-connector
+  template:
+    metadata:
+      labels:
+        app: kubemq-connector
+        component: kubemq-connector
+    spec:
+      containers:
+        - name: kubemq-connector
+          image: zenginedev/openfaas-kubemq-connector:latest
+          imagePullPolicy: Always
+          env:
+            - name: upstream_timeout
+              value: "1m1s"
+            - name: gateway_url
+              value: "http://gateway.openfaas:8080"
+            - name: topics
+              value: "kubemq-test,"
+            - name: kubemq_host
+              value: 10.245.27.245
+            - name: kubemq_client
+              value: "openfaas"
+            - name: print_response
+              value: "true"
+            - name: print_response_body
+              value: "true"
+            - name: basic_auth
+              value: "true"
+            - name: secret_mount_path
+              value: "/var/secrets/"
+            - name: topic_delimiter
+              value: ","
+            - name: asynchronous_invocation
+              value: "false"
+          volumeMounts:
+            - name: auth
+              readOnly: true
+              mountPath: "/var/secrets/"
+      volumes:
+        - name: auth
+          secret:
+            secretName: basic-auth

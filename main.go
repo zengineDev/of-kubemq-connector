@@ -1,17 +1,19 @@
 package main
 
 import (
-	"context"
-	"github.com/kubemq-io/kubemq-go"
 	"github.com/openfaas-incubator/connector-sdk/types"
 	"log"
 	"os"
 	"strings"
-	"time"
+
+	"github.com/ZengineChris/of-kubemq-connector/config"
+	"github.com/ZengineChris/of-kubemq-connector/kubemq"
 )
 
 func main() {
 	creds := types.GetCredentials()
+
+	configs := config.Get()
 
 	topics := []string{}
 	if val, exists := os.LookupEnv("topics"); exists {
@@ -22,54 +24,34 @@ func main() {
 		}
 	}
 
-	kubemqHost := "127.0.0.1"
-	if val, exists := os.LookupEnv("kubemq_host"); exists {
-		kubemqHost = val
-	}
-
-	kubemqClient := "client"
-	if val, exists := os.LookupEnv("kubemq_client"); exists {
-		kubemqClient = val
-	}
-
 	controllerConfig := &types.ControllerConfig{
-		UpstreamTimeout:          time.Second * 60,
-		GatewayURL:               "http://gateway:8080",
-		RebuildInterval:          time.Second * 5,
-		PrintResponse:            true,
-		PrintResponseBody:        true,
-		TopicAnnotationDelimiter: ",",
-		AsyncFunctionInvocation:  true,
-		PrintSync:                false,
+		UpstreamTimeout:          configs.UpstreamTimeout,
+		GatewayURL:               configs.GatewayURL,
+		RebuildInterval:          configs.RebuildInterval,
+		PrintResponse:            configs.PrintResponse,
+		PrintResponseBody:        configs.PrintResponseBody,
+		TopicAnnotationDelimiter: configs.TopicAnnotationDelimiter,
+		AsyncFunctionInvocation:  configs.AsyncFunctionInvocation,
+		PrintSync:                configs.PrintSync,
 	}
 
 	controller := types.NewController(creds, controllerConfig)
 	controller.BeginMapBuilder()
 
-	// Her is the kubemq event stream
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	client, err := kubemq.NewClient(ctx,
-		kubemq.WithAddress(kubemqHost, 50000),
-		kubemq.WithClientId(kubemqClient),
-		kubemq.WithTransportType(kubemq.TransportTypeGRPC))
+	brokerConfig := kubemq.BrokerConfig{
+		Host:   configs.Host,
+		Client: configs.ClientId,
+	}
+
+	broker, err := kubemq.NewBroker(brokerConfig)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer client.Close()
 
-	errCh := make(chan error)
-	eventsCh, err := client.SubscribeToEvents(ctx, topics[0], "", errCh)
-
-	for {
-		select {
-		case err := <-errCh:
-			log.Fatal(err)
-		case event := <-eventsCh:
-			// do something with the event and the controller
-			controller.Invoke(event.Channel, &event.Body)
-		}
-
+	err = broker.Subscribe(controller, configs.Topics)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 }
