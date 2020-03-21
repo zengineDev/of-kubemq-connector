@@ -76,6 +76,7 @@ func (b *broker) Subscribe(controller types.Controller, topics []string) error {
 		eventsCh, err := b.client.SubscribeToEvents(b.ctx, topic, "", errCh)
 		if err != nil {
 			log.Printf("Unable to bind to topic: %s", topic)
+			log.Println(err)
 		}
 		for {
 			select {
