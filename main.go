@@ -22,6 +22,16 @@ func main() {
 		}
 	}
 
+	kubemqHost := "127.0.0.1"
+	if val, exists := os.LookupEnv("kubemq_host"); exists {
+		kubemqHost = val
+	}
+
+	kubemqClient := "client"
+	if val, exists := os.LookupEnv("kubemq_client"); exists {
+		kubemqClient = val
+	}
+
 	controllerConfig := &types.ControllerConfig{
 		UpstreamTimeout:          time.Second * 60,
 		GatewayURL:               "http://gateway:8080",
@@ -40,8 +50,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	client, err := kubemq.NewClient(ctx,
-		kubemq.WithAddress("", 50000),
-		kubemq.WithClientId("works.looper.app"),
+		kubemq.WithAddress(kubemqHost, 50000),
+		kubemq.WithClientId(kubemqClient),
 		kubemq.WithTransportType(kubemq.TransportTypeGRPC))
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +59,7 @@ func main() {
 	defer client.Close()
 
 	errCh := make(chan error)
-	eventsCh, err := client.SubscribeToEvents(ctx, "looper", "", errCh)
+	eventsCh, err := client.SubscribeToEvents(ctx, topics[0], "", errCh)
 
 	for {
 		select {
