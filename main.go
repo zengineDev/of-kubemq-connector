@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/openfaas-incubator/connector-sdk/types"
 	"log"
 	"os"
@@ -14,6 +15,9 @@ func main() {
 	creds := types.GetCredentials()
 
 	configs := config.Get()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	topics := []string{}
 	if val, exists := os.LookupEnv("topics"); exists {
@@ -43,7 +47,7 @@ func main() {
 		Client: configs.ClientId,
 	}
 
-	broker, err := kubemq.NewBroker(brokerConfig)
+	broker, err := kubemq.NewBroker(ctx, brokerConfig)
 
 	if err != nil {
 		log.Fatal(err)
