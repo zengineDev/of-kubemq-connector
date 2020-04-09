@@ -1,6 +1,6 @@
 # Openfaas KubeMQ Connector
 [![Go Report Card](https://goreportcard.com/badge/github.com/ZengineChris/of-kubemq-connector)](https://goreportcard.com/report/github.com/ZengineChris/of-kubemq-connector)
-[[![Documentation](https://godoc.org/github.com/github.com/zengineDev/of-kubemq-connector?status.svg)](https://pkg.go.dev/github.com/zengineDev/of-kubemq-connector)
+[![Documentation](https://godoc.org/github.com/github.com/zengineDev/of-kubemq-connector?status.svg)](https://pkg.go.dev/github.com/zengineDev/of-kubemq-connector)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 [![Release](https://img.shields.io/github/v/release/zengineDev/of-kubemq-connector?style=plastic)](https://github.com/zengineDev/of-kubemq-connector/releases)
